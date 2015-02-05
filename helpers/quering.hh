@@ -31,10 +31,10 @@ class QueryEngine {
 		std::pair<bool, std::vector<target_text> > query(StringPiece source_phrase);
 		std::pair<bool, std::vector<target_text> > query(std::vector<uint64_t> source_phrase);
 		void printTargetInfo(std::vector<target_text> target_phrases);
-		const std::map<unsigned int, std::string> getVocab() const
+		const std::map<unsigned int, std::string> &getVocab() const
 		{ return decoder.get_target_lookup_map(); }
 
-		const std::map<uint64_t, std::string> getSourceVocab() const {
+		const std::map<uint64_t, std::string> &getSourceVocab() const {
 			return source_vocabids;
 		}
 
