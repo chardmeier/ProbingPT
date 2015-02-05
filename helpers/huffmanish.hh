@@ -178,7 +178,7 @@ template<class Iterator>
 std::vector<unsigned int> vbyte_decode_line(const Iterator &line_begin, const Iterator &line_end){
 	std::vector<unsigned int> huffman_line;
 	Iterator current_num_begin = line_begin;
-	Iterator current_num_end = line_end;
+	Iterator current_num_end = line_begin;
 
 	for (Iterator it = line_begin; it != line_end; it++){
 		++current_num_end;
