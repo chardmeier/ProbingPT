@@ -93,7 +93,8 @@ public:
 	target_text decode_line (std::vector<unsigned int> input, int num_scores);
 
 	//Variable byte decodes a all target phrases contained here and then passes them to decode_line
-	std::vector<target_text> full_decode_line (std::vector<unsigned char> lines, int num_scores);
+	template<class Iterator>
+	std::vector<target_text> full_decode_line (Iterator line_begin, Iterator line_end, int num_scores);
 };
 
 std::string getTargetWordsFromIDs(std::vector<unsigned int> ids, std::map<unsigned int, std::string> * lookup_target_phrase);
@@ -106,5 +107,83 @@ inline float reinterpret_uint(unsigned int * num);
 
 std::vector<unsigned char> vbyte_encode_line(std::vector<unsigned int> line);
 inline std::vector<unsigned char> vbyte_encode(unsigned int num);
-std::vector<unsigned int> vbyte_decode_line(std::vector<unsigned char> line);
 inline unsigned int bytes_to_int(std::vector<unsigned char> number);
+
+template<class Iterator>
+std::vector<unsigned int> vbyte_decode_line(Iterator line_begin, Iterator line_end);
+
+inline unsigned int bytes_to_int(std::vector<unsigned char> number){
+	unsigned int retvalue = 0;
+	std::vector<unsigned char>::iterator it = number.begin();
+	unsigned char shift = 0; //By how many bits to shift
+
+	while (it != number.end()) {
+		retvalue |= (*it & 0x7f) << shift;
+		shift += 7;
+		it++;
+	}
+
+	return retvalue;
+}
+
+template<class Iterator>
+std::vector<target_text> HuffmanDecoder::full_decode_line (Iterator lines_begin, Iterator lines_end, int num_scores){
+	std::vector<target_text> retvector; //All target phrases
+	std::vector<unsigned int> decoded_lines = vbyte_decode_line(lines_begin, lines_end); //All decoded lines
+	std::vector<unsigned int>::iterator it = decoded_lines.begin(); //Iterator for them
+	std::vector<unsigned int> current_target_phrase; //Current target phrase decoded
+
+	short zero_count = 0; //Count home many zeroes we have met. so far. Every 3 zeroes mean a new target phrase.
+
+	while(it != decoded_lines.end()){
+		if (zero_count == 1) {
+			//We are extracting scores. we know how many scores there are so we can push them
+			//to the vector. This is done in case any of the scores is 0, because it would mess
+			//up the state machine.
+			for (int i = 0; i < num_scores; i++){
+				current_target_phrase.push_back(*it);
+				it++;
+			}
+		}
+
+		if (zero_count == 3) {
+			//We have finished with this entry, decode it, and add it to the retvector.
+			retvector.push_back(decode_line(current_target_phrase, num_scores));
+			current_target_phrase.clear(); //Clear the current target phrase and the zero_count
+			zero_count = 0; //So that we can reuse them for the next target phrase
+		}
+		//Add to the next target_phrase, number by number.
+		current_target_phrase.push_back(*it);
+		if (*it == 0) {
+			zero_count++;
+		}
+		it++; //Go to the next word/symbol
+	}
+	//Don't forget the last remaining line!
+	if (zero_count == 3) {
+		//We have finished with this entry, decode it, and add it to the retvector.
+		retvector.push_back(decode_line(current_target_phrase, num_scores));
+		current_target_phrase.clear(); //Clear the current target phrase and the zero_count
+		zero_count = 0; //So that we can reuse them for the next target phrase
+	}
+
+	return retvector;
+
+}
+
+template<class Iterator>
+std::vector<unsigned int> vbyte_decode_line(Iterator line_begin, Iterator line_end){
+	std::vector<unsigned int> huffman_line;
+	std::vector<unsigned char> current_num;
+
+	for (Iterator it = line_begin; it != line_end; it++){
+		current_num.push_back(*it);
+		if ((*it >> 7) != 1) {
+			//We don't have continuation in the next bit
+			huffman_line.push_back(bytes_to_int(current_num));
+			current_num.clear();
+		}
+	}
+	return huffman_line;
+}
+

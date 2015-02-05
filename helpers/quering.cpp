@@ -104,15 +104,9 @@ std::pair<bool, std::vector<target_text> > QueryEngine::query(std::vector<uint64
 		uint64_t initial_index = entry -> GetValue();
 		unsigned int bytes_toread = entry -> bytes_toread;
 		
-		//ASK HIEU FOR MORE EFFICIENT WAY TO DO THIS!
-		std::vector<unsigned char> encoded_text; //Assign to the vector the relevant portion of the array.
-		encoded_text.reserve(bytes_toread);
-		for (int i = 0; i < bytes_toread; i++){
-			encoded_text.push_back(binary_mmaped[i+initial_index]);
-		}
-
 		//Get only the translation entries necessary
-		translation_entries = decoder.full_decode_line(encoded_text, num_scores);
+		translation_entries = decoder.full_decode_line(binary_mmaped + initial_index,
+			binary_mmaped + initial_index + bytes_toread, num_scores);
 
 	}
 
@@ -147,15 +141,9 @@ std::pair<bool, std::vector<target_text> > QueryEngine::query(StringPiece source
 		//At the end of the file we can't readd + largest_entry cause we get a segfault.
 		//std::cerr << "Entry size is bytes is: " << bytes_toread << std::endl;
 		
-		//ASK HIEU FOR MORE EFFICIENT WAY TO DO THIS!
-		std::vector<unsigned char> encoded_text; //Assign to the vector the relevant portion of the array.
-		encoded_text.reserve(bytes_toread);
-		for (int i = 0; i < bytes_toread; i++){
-			encoded_text.push_back(binary_mmaped[i+initial_index]);
-		}
-
 		//Get only the translation entries necessary
-		translation_entries = decoder.full_decode_line(encoded_text, num_scores);
+		translation_entries = decoder.full_decode_line(binary_mmaped + initial_index,
+			binary_mmaped + initial_index + bytes_toread, num_scores);
 
 	}
 
