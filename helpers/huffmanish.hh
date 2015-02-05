@@ -107,17 +107,20 @@ inline float reinterpret_uint(unsigned int * num);
 
 std::vector<unsigned char> vbyte_encode_line(const std::vector<unsigned int> &line);
 inline std::vector<unsigned char> vbyte_encode(unsigned int num);
-inline unsigned int bytes_to_int(const std::vector<unsigned char> &number);
 
 template<class Iterator>
-std::vector<unsigned int> vbyte_decode_line(Iterator line_begin, Iterator line_end);
+inline unsigned int bytes_to_int(const Iterator &number_begin, const Iterator &number_end);
 
-inline unsigned int bytes_to_int(const std::vector<unsigned char> &number){
+template<class Iterator>
+std::vector<unsigned int> vbyte_decode_line(const Iterator &line_begin, const Iterator &line_end);
+
+templace<class Iterator>
+inline unsigned int bytes_to_int(const Iterator &number_begin, const Iterator &number_end) {
 	unsigned int retvalue = 0;
-	std::vector<unsigned char>::const_iterator it = number.begin();
+	Iterator it = number_begin;
 	unsigned char shift = 0; //By how many bits to shift
 
-	while (it != number.end()) {
+	while (it != number_end) {
 		retvalue |= (*it & 0x7f) << shift;
 		shift += 7;
 		it++;
@@ -172,16 +175,17 @@ std::vector<target_text> HuffmanDecoder::full_decode_line (Iterator lines_begin,
 }
 
 template<class Iterator>
-std::vector<unsigned int> vbyte_decode_line(Iterator line_begin, Iterator line_end){
+std::vector<unsigned int> vbyte_decode_line(const Iterator &line_begin, const Iterator &line_end){
 	std::vector<unsigned int> huffman_line;
-	std::vector<unsigned char> current_num;
+	Iterator current_num_begin = line_begin;
+	Iterator current_num_end = line_end;
 
 	for (Iterator it = line_begin; it != line_end; it++){
-		current_num.push_back(*it);
+		++current_num_end;
 		if ((*it >> 7) != 1) {
 			//We don't have continuation in the next bit
-			huffman_line.push_back(bytes_to_int(current_num));
-			current_num.clear();
+			huffman_line.push_back(bytes_to_int(current_num_begin, current_num_end));
+			current_num_begin = current_num_end;
 		}
 	}
 	return huffman_line;
