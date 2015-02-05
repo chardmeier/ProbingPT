@@ -114,7 +114,7 @@ inline unsigned int bytes_to_int(const Iterator &number_begin, const Iterator &n
 template<class Iterator>
 std::vector<unsigned int> vbyte_decode_line(const Iterator &line_begin, const Iterator &line_end);
 
-templace<class Iterator>
+template<class Iterator>
 inline unsigned int bytes_to_int(const Iterator &number_begin, const Iterator &number_end) {
 	unsigned int retvalue = 0;
 	Iterator it = number_begin;
