@@ -47,21 +47,21 @@ class Huffman {
 
 	public:
 		Huffman (const char *);
-		void count_elements (line_text line);
+		void count_elements (const line_text &line);
 		void assign_values();
 		void serialize_maps(const char * dirname);
 		void produce_lookups();
 
-		std::vector<unsigned int> encode_line(line_text line);
+		std::vector<unsigned int> encode_line(const line_text &line);
 
 		//encode line + variable byte ontop
-		std::vector<unsigned char> full_encode_line(line_text line);
+		std::vector<unsigned char> full_encode_line(const line_text &line);
 
 		//Getters
-		const std::map<unsigned int, std::string> get_target_lookup_map() const{
+		const std::map<unsigned int, std::string> &get_target_lookup_map() const{
 			return lookup_target_phrase;
 		}
-		const std::map<unsigned int, std::vector<unsigned char> > get_word_all1_lookup_map() const{
+		const std::map<unsigned int, std::vector<unsigned char> > &get_word_all1_lookup_map() const{
 			return lookup_word_all1;
 		}
 
@@ -79,10 +79,10 @@ public:
 	HuffmanDecoder (std::map<unsigned int, std::string> *, std::map<unsigned int, std::vector<unsigned char> > *);
 
 	//Getters
-	const std::map<unsigned int, std::string> get_target_lookup_map() const{
+	const std::map<unsigned int, std::string> &get_target_lookup_map() const{
 		return lookup_target_phrase;
 	}
-	const std::map<unsigned int, std::vector<unsigned char> > get_word_all1_lookup_map() const{
+	const std::map<unsigned int, std::vector<unsigned char> > &get_word_all1_lookup_map() const{
 		return lookup_word_all1;
 	}
 
@@ -105,16 +105,16 @@ inline unsigned int reinterpret_float(float * num);
 
 inline float reinterpret_uint(unsigned int * num);
 
-std::vector<unsigned char> vbyte_encode_line(std::vector<unsigned int> line);
+std::vector<unsigned char> vbyte_encode_line(const std::vector<unsigned int> &line);
 inline std::vector<unsigned char> vbyte_encode(unsigned int num);
-inline unsigned int bytes_to_int(std::vector<unsigned char> number);
+inline unsigned int bytes_to_int(const std::vector<unsigned char> &number);
 
 template<class Iterator>
 std::vector<unsigned int> vbyte_decode_line(Iterator line_begin, Iterator line_end);
 
-inline unsigned int bytes_to_int(std::vector<unsigned char> number){
+inline unsigned int bytes_to_int(const std::vector<unsigned char> &number){
 	unsigned int retvalue = 0;
-	std::vector<unsigned char>::iterator it = number.begin();
+	std::vector<unsigned char>::const_iterator it = number.begin();
 	unsigned char shift = 0; //By how many bits to shift
 
 	while (it != number.end()) {
