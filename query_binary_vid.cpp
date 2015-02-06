@@ -39,9 +39,8 @@ int main(int argc, char* argv[]) {
 
 	//Interactive search
 	std::cout << "Please enter a string to be searched, or exit to exit." << std::endl;
-	while (true){
-		std::string cinstr = "";
-		getline(std::cin, cinstr);
+	std::string cinstr = "";
+	while (getline(std::cin, cinstr)) {
 		if (cinstr == "exit"){
 			break;
 		}else{
